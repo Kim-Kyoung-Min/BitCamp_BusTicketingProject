@@ -1,0 +1,51 @@
+package spms.controls;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import spms.annotation.Component;
+import spms.bind.DataBinding;
+import spms.dao.BusDao;
+import spms.vo.Bus;
+
+@Component("/auth/login.do")
+public class LogInController implements Controller, DataBinding {
+
+	BusDao busDao = null;
+
+	public LogInController setMemberDao(BusDao busDao) {
+		this.busDao = busDao;
+		return this;
+	}
+
+	public Object[] getDataBinders() {
+		return new Object[] {
+				"loginInfo", spms.vo.Bus.class 
+		};
+	}
+
+	@Override
+	public String execute(Map<String, Object> model) throws Exception {
+		Bus loginInfo = (Bus) model.get("loginInfo");
+		if (loginInfo.getEmail() == null) { 
+			return "../auth/LogInForm.jsp";
+		} else { 
+			Bus bus = busDao.exist(loginInfo.getEmail(), loginInfo.getPassword());
+			if (bus != null) {
+				if (loginInfo.getEmail().equals(bus.getEmail()) && loginInfo.getPassword().equals(bus.getPassword())) {
+					HttpSession session = (HttpSession) model.get("session");
+					session.setAttribute("bus", bus);
+					System.out.println("로그인 성공 : " + session.getAttribute("bus"));
+					return "/auth/searchFromLogOut.jsp";
+				} else {
+					System.out.println("로그인 실패@@@@@");
+					return "/auth/LogInFail.jsp";
+				}
+			} else {
+				System.out.println("로그인 실패@@@@@");
+				return "/auth/LogInFail.jsp";
+			}
+		}
+	}
+}

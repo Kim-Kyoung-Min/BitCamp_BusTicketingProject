@@ -1,0 +1,11 @@
+package spms.vo;
+
+public class Bus {
+	protected int bno;
+	protected String bname;
+	protected String bemail;
+	protected String password;
+	protected String start_location;
+	protected String end_location;
+	
+}

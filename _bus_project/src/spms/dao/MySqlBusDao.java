@@ -1,0 +1,211 @@
+package spms.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import spms.annotation.Component;
+import spms.vo.Bus;
+
+@Component("BusDao")
+public class MySqlBusDao implements BusDao{
+	
+	DataSource ds = null;
+	
+	public void setDataSource(DataSource ds) {
+		this.ds = ds;
+	}
+		
+	public List<Bus> selectList() throws Exception{
+		Connection connection = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		final String sqlSelect = 
+				"SELECT bno,bname,email" + "\r\n" +
+				"FROM busmembers" + "\r\n" +
+				"ORDER BY bno ASC";
+		
+		try {
+			connection = ds.getConnection();
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(sqlSelect);
+			
+			ArrayList<Bus> busmembers = new ArrayList<Bus>();
+
+			while(rs.next()) {
+				busmembers.add(new Bus()
+							.setBno(rs.getInt("bno"))
+							.setBname(rs.getString("bname"))
+							.setEmail(rs.getString("email")));
+			}
+			
+			return busmembers;
+			
+		}catch(Exception e) {
+			throw e;
+		}finally {
+			try {if(rs!=null) rs.close();}
+			catch(Exception e) {e.printStackTrace();}
+			try {if(stmt!=null) stmt.close();}
+			catch(Exception e) {e.printStackTrace();}			
+			try {if(connection != null)connection.close();}
+			catch(Exception e) {e.printStackTrace();}
+		}
+	}
+	
+	
+	public int insert(Bus busmembers) throws Exception{
+		Connection connection = null;
+		int result = 0;
+		PreparedStatement stmt = null;
+		final String sqlInsert = "INSERT INTO busmembers(email,password,bname)" + "\r\n" +
+							"VALUES(?, ?, ?)";
+		
+		try {
+			connection = ds.getConnection();
+			stmt = connection.prepareStatement(sqlInsert);
+			stmt.setString(1, busmembers.getEmail());
+			stmt.setString(2, busmembers.getPassword());
+			stmt.setString(3, busmembers.getBname());
+			result = stmt.executeUpdate();	
+		}catch(Exception e) {
+			throw e;
+		}finally {
+			try {if(stmt!=null) stmt.close();}
+			catch(Exception e) {e.printStackTrace();}
+			try {if(connection != null)connection.close();}
+			catch(Exception e) {e.printStackTrace();}
+		}
+		
+		return result;
+	}
+	
+	public int delete(int no) throws Exception{
+		
+		Connection connection = null;
+		int result = 0;
+	    Statement stmt = null;
+	    final String sqlDelete = "DELETE FROM busmembers WHERE bno=";
+
+	    try {
+    	  connection = ds.getConnection();
+	      stmt = connection.createStatement();
+	      result = stmt.executeUpdate(
+	    		  sqlDelete + no);
+
+	    } catch (Exception e) {
+	      throw e;
+
+	    } finally {
+	      try {if (stmt != null) stmt.close();} catch(Exception e) {}
+		  try {if(connection != null)connection.close();}
+		  catch(Exception e) {e.printStackTrace();}
+	    }		
+		
+		return result;
+	}
+	
+	public Bus selectOne(int no) throws Exception{
+		Connection connection = null;
+		Bus bus = null;
+	    Statement stmt = null;
+	    ResultSet rs = null;
+	    
+	    final String sqlSelectOne = "SELECT bno,email,bname FROM busmembers WHERE bno=";
+	    
+	    try {
+    	  connection = ds.getConnection();
+	      stmt = connection.createStatement();
+	      rs = stmt.executeQuery(
+	    		  sqlSelectOne + no);    
+	      if (rs.next()) {
+	    	 bus = new Bus()
+	        .setBno(rs.getInt("BNO"))
+	        .setEmail(rs.getString("EMAIL"))
+	        .setBname(rs.getString("BNAME"));
+	    	 
+
+	      } else {
+	        throw new Exception("해당 번호의 회원을 찾을 수 없습니다.");
+	      }
+
+	    } catch (Exception e) {
+	      throw e;
+	    } finally {
+	      try {if (rs != null) rs.close();} catch(Exception e) {}
+	      try {if (stmt != null) stmt.close();} catch(Exception e) {}
+		  try {if(connection != null)connection.close();}
+		  catch(Exception e) {e.printStackTrace();}
+	    }
+	    
+		return bus;
+	}
+	
+	public int update(Bus bus) throws Exception{
+		Connection connection = null;
+		int result = 0;
+	    PreparedStatement stmt = null;
+	    final String sqlUpdate = "UPDATE busmembers SET email=?,bname=?"
+	              				+ " WHERE BNO=?";
+	    try {
+	      connection = ds.getConnection();
+	      stmt = connection.prepareStatement(sqlUpdate);
+	      stmt.setString(1, bus.getEmail());
+	      stmt.setString(2, bus.getBname());
+	      stmt.setInt(3, bus.getBno());
+	      result = stmt.executeUpdate();
+
+	    } catch (Exception e) {
+	      throw e;
+	    } finally {
+	      try {if (stmt != null) stmt.close();} catch(Exception e) {}
+		  try {if(connection != null)connection.close();}
+	  	  catch(Exception e) {e.printStackTrace();}
+	    }		
+		
+		return result;
+	}
+	
+	public Bus exist(String email, String password) throws Exception{
+		Connection connection = null;
+		Bus bus = null;
+	    PreparedStatement stmt = null;
+	    ResultSet rs = null;
+	    final String sqlExist = "SELECT email,password,bname FROM busmembers"
+	              				+ " WHERE email=? AND password=?";	
+
+	    try {
+	    	connection = ds.getConnection();
+	      stmt = connection.prepareStatement(sqlExist);
+	      stmt.setString(1, email);
+	      stmt.setString(2, password);
+	      rs = stmt.executeQuery();
+	      if (rs.next()) {
+	    	  bus = new Bus()
+	    	  .setBname(rs.getString("bname"))
+	          .setEmail(rs.getString("email"))
+	          .setPassword(rs.getString("password"));
+	      } else {
+	    	  
+	        return null;
+	      }
+	    } catch (Exception e) {
+	      throw e;
+
+	    } finally {
+	      try {if (rs != null) rs.close();} catch (Exception e) {}
+	      try {if (stmt != null) stmt.close();} catch (Exception e) {}
+		  try {if(connection != null)connection.close();}
+		  catch(Exception e) {e.printStackTrace();}
+	    }		
+	    
+		return bus;
+	}
+
+	
+}

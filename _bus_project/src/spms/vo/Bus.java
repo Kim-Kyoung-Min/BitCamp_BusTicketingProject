@@ -1,0 +1,59 @@
+package spms.vo;
+
+public class Bus {
+	protected int bno;
+	protected String bname;
+	protected String email;
+	protected String password;
+	protected String start_location;
+	protected String end_location;
+	public int getBno() {
+		return bno;
+	}
+	public Bus setBno(int bno) {
+		this.bno = bno;
+		return this;
+	}
+	public String getBname() {
+		return bname;
+	}
+	public Bus setBname(String bname) {
+		this.bname = bname;
+		return this;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public Bus setEmail(String email) {
+		this.email = email;
+		return this;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public Bus setPassword(String password) {
+		this.password = password;
+		return this;
+	}
+	public String getStart_location() {
+		return start_location;
+	}
+	public Bus setStart_location(String start_location) {
+		this.start_location = start_location;
+		return this;
+	}
+	public String getEnd_location() {
+		return end_location;
+	}
+	public Bus setEnd_location(String end_location) {
+		this.end_location = end_location;
+		return this;
+	}
+	@Override
+	public String toString() {
+		return "Bus [bno=" + bno + ", bname=" + bname + ", email=" + email + ", password=" + password
+				+ ", start_location=" + start_location + ", end_location=" + end_location + "]";
+	}
+	
+	
+}
